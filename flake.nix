@@ -43,7 +43,13 @@
       let
         inherit (nixpkgs) lib;
 
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          inherit system;
+          config = {
+            allowUnfree = true;
+          };
+        };
+
         python = pkgs.python312;
 
         workspace = uv2nix.lib.workspace.loadWorkspace { workspaceRoot = ./.; };
@@ -62,31 +68,33 @@
             ]
           );
 
-        colabEnv = pythonSet.mkVirtualEnv "ace-comfy-colab-env" workspace.deps.default;
+
       in
-      {
-        packages.default = colabEnv;
+        {
 
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            bashInteractive
-            uv
-            # nodejs
-            # awscli2
-            
-          ];
 
-          env = {
-            OPENSSL_NO_VENDOR = "1";
-            UV_NO_SYNC = "1";
-            UV_PYTHON = python.interpreter;
-            UV_PYTHON_DOWNLOADS = "never";
-          };
+          devShells.default = pkgs.mkShell {
+            packages = with pkgs; [
+              bashInteractive
+              uv
+              antigravity-cli
+              # nodejs
+              # awscli2
+              
+            ];
 
-          shellHook = ''
+
+            env = {
+              OPENSSL_NO_VENDOR = "1";
+              UV_NO_SYNC = "1";
+              UV_PYTHON = python.interpreter;
+              UV_PYTHON_DOWNLOADS = "never";
+            };
+
+            shellHook = ''
             unset PYTHONPATH
           '';
-        };
-      }
+          };
+        }
     );
 }
