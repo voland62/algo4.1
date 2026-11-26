@@ -77,7 +77,7 @@
             packages = with pkgs; [
               bashInteractive
               uv
-              antigravity-cli
+
               # nodejs
               # awscli2
               
